@@ -1,0 +1,21 @@
+# Dependencies
+.venv
+venv
+*.egg-info/
+__pycache__/
+
+# Data and Checkpoints
+# Ignore all downloaded data
+data/
+cnn/data/
+gan/data/
+
+# Ignore all saved model checkpoints
+checkpoints/
+cnn/checkpoints/
+gan/checkpoints/
+
+# Ignore generated outputs
+*.png
+*.jpg
+*.log
