@@ -1,10 +1,8 @@
-# gan/train_gan.py
+# gan/train_gan.py (FINAL VERSION - FusionNet GAN Module)
 
-import sys
+# import sys
 import os
-
-sys.path.append('.') 
-
+import json
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -12,16 +10,24 @@ import torchvision.utils as vutils
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Import custom files (These lines stay the same)
+#------Loading Configuration from config.json------
+CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+
+with open(CONFIG_PATH, 'r') as f:
+    CONFIG = json.load(f)
+
+# Removed previous sys.path.append() lines, relying on running as 'python -m gan.train_gan'
+
+# Import custom files
 from gan.models.generator import Generator, LATENT_DIM, weights_init
 from gan.models.discriminator import Discriminator
 from gan.utils.datasets import get_cifar10_gan_dataloader
 
 # --- Configuration ---
-BATCH_SIZE = 128
-NUM_EPOCHS = 25
-LR = 0.0002
-BETA1 = 0.5 # Hyperparameter for Adam optimizers
+BATCH_SIZE = CONFIG['training']['BATCH_SIZE']
+NUM_EPOCHS = CONFIG['training']['NUM_EPOCHS']
+LR = CONFIG['training']['LR']
+BETA1 = CONFIG['training']['BETA1']
 
 # Set device
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -56,11 +62,13 @@ def run_gan_experiment():
     # Establish conventions for real and fake labels during training
     real_label = 1.
     fake_label = 0.
+    smooth_real_label = 0.9 # STABILITY FIX: Label Smoothing
 
     print(f"Starting GAN training on {device} for {NUM_EPOCHS} epochs.")
     
     G_losses = []
     D_losses = []
+    D_acc_history = [] # EVALUATION: Accuracy tracking list
     img_list = []
     
     for epoch in range(1, NUM_EPOCHS + 1):
@@ -69,11 +77,12 @@ def run_gan_experiment():
             ############################
             # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
             ###########################
-            # Train with all-real batch
             netD.zero_grad()
             real_cpu = data[0].to(device)
             b_size = real_cpu.size(0)
-            label = torch.full((b_size, 1), real_label, dtype=torch.float, device=device)
+            
+            # Use smoothed label for training D on real data
+            label = torch.full((b_size, 1), smooth_real_label, dtype=torch.float, device=device)
             
             output = netD(real_cpu)
             errD_real = criterion(output, label)
@@ -94,11 +103,30 @@ def run_gan_experiment():
             errD = errD_real + errD_fake
             optimizerD.step()
 
+            # --- Calculate Discriminator Accuracy (The required evaluation metric) ---
+            netD.eval() # Switch to evaluation mode
+            with torch.no_grad():
+                # Accuracy on REAL data (target label 1.0)
+                output_real = netD(real_cpu)
+                pred_real = output_real > 0.5 
+                acc_real = pred_real.float().mean().item()
+
+                # Accuracy on FAKE data (target label 0.0)
+                output_fake = netD(fake.detach())
+                pred_fake = output_fake <= 0.5 
+                acc_fake = pred_fake.float().mean().item()
+            
+            # Overall D Accuracy (Average of real and fake performance)
+            D_accuracy = (acc_real + acc_fake) / 2
+            D_acc_history.append(D_accuracy)
+            netD.train() # Switch back to training mode
+            # ------------------------------------------------------------------------
+
             ############################
             # (2) Update G network: maximize log(D(G(z)))
             ###########################
             netG.zero_grad()
-            label.fill_(real_label)  # G wants to fool D, so label its output as 'real'
+            label.fill_(real_label)  # G wants to fool D, so label its output as 'real' (1.0)
             output = netD(fake)
             errG = criterion(output, label)
             errG.backward()
@@ -116,22 +144,39 @@ def run_gan_experiment():
                 fake_images = netG(fixed_noise).detach().cpu()
                 img_list.append(vutils.make_grid(fake_images, padding=2, normalize=True))
 
-            print(f'[{epoch}/{NUM_EPOCHS}] Loss_D: {errD.item():.4f} Loss_G: {errG.item():.4f} D(x): {D_x:.4f} D(G(z)): {D_G_z2:.4f}')
+            print(f'[{epoch}/{NUM_EPOCHS}] Loss_D: {errD.item():.4f} Loss_G: {errG.item():.4f} D(x): {D_x:.4f} D(G(z)): {D_G_z2:.4f} | D_Acc: {D_accuracy:.4f}')
 
     # --- 3. Save Final Models ---
+    # Ensure checkpoints directory exists before saving
+    os.makedirs('gan/checkpoints', exist_ok=True)
     torch.save(netG.state_dict(), './gan/checkpoints/G_weights.pth')
     torch.save(netD.state_dict(), './gan/checkpoints/D_weights.pth')
     print("GAN training complete. Models saved to checkpoints.")
 
-    # --- 4. Plot Loss History (Accuracy Graph Plot analog) ---
-    plt.figure(figsize=(10,5))
-    plt.title("Generator and Discriminator Loss During Training")
+    # --- 4. Plot Loss and Accuracy History (Dual Plot) ---
+    plt.figure(figsize=(12, 6)) # Increased figure size for two plots
+
+    # Plot 1: Losses
+    plt.subplot(1, 2, 1)
     plt.plot(G_losses, label="Generator Loss")
     plt.plot(D_losses, label="Discriminator Loss")
+    plt.title("GAN Losses Over Iterations")
     plt.xlabel("Iterations")
     plt.ylabel("Loss")
     plt.legend()
-    plt.savefig('./gan/gan_loss_plot.png')
+
+    # Plot 2: Accuracy (The required "Accuracy Graph Plot")
+    plt.subplot(1, 2, 2)
+    plt.plot(D_acc_history, label="Discriminator Accuracy")
+    # Ideal accuracy is 0.5 (50%) - where D is guessing
+    plt.axhline(y=0.5, color='r', linestyle='--', label='Ideal Equilibrium (50%)') 
+    plt.title("Discriminator Accuracy")
+    plt.xlabel("Iterations")
+    plt.ylabel("Accuracy")
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.savefig('./gan/gan_loss_accuracy_plot.png') 
     plt.show()
 
     # --- 5. Generate Fake Image (Final Output) ---
@@ -145,8 +190,7 @@ def run_gan_experiment():
 
 if __name__ == '__main__':
     # Make sure all directories exist
-    import os
     os.makedirs('gan/checkpoints', exist_ok=True)
     os.makedirs('gan/data', exist_ok=True)
-        
+    
     run_gan_experiment()
