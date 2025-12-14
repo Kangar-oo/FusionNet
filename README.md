@@ -1,69 +1,57 @@
-👋 Welcome to FusionNet: Our Dual Deep Learning Project!
-Hey there! Thanks for checking out FusionNet. This project is our ambitious playground where we're tackling two of the coolest problems in AI at once: teaching a machine to see (Classification) and teaching a machine to dream (Generation).
 
-We’re building two separate, high-powered modules that both work with the well-known CIFAR-10 image dataset.
+# 🚀 Welcome to FusionNet: Our Dual Deep Learning Lab!
+Hello! This repository hosts FusionNet, our exciting project where we are building two complementary, high-performance deep learning systems that work on the CIFAR-10 image dataset. Think of it as a collaboration between a brilliant scientist (the CNN) and a talented artist (the GAN).
 
-🌟 What We're Building
-The main goal here is to create a super clean and organized code structure that makes collaboration easy. We want a pro-level framework where we can grow both models without them stepping on each other's toes.
+The main goal is to create a super clean, modular framework that allows both parts to be developed and upgraded independently.
 
-🧭 How We Organized the Code
-We kept things simple and separated into two main folders:
+# 🧠 Module 1: The CNN Classifier (ResNet-18)
+(This is your module! It's currently a clean slate, waiting for your implementation.)
 
-FusionNet/
-├── cnn/                             # 🧠 The Brain: Image Classification Module (ResNet-18)
-│   ├── models/                      
-│   ├── train_cnn.py                 # Your Mission! Training the classifier.
-│   └── config.json                  # All the numbers and settings for the CNN model.
-│
-├── gan/                             # 🎨 The Artist: Image Generation Module (DCGAN)
-│   ├── config.json                  # All the numbers and settings for the GAN model.
-│   ├── models/                      
-│   ├── train_gan.py                 # The fully coded training script.
-│   └── *Results* # Where the plots and generated images land!
-│
-└── README.md
+Your Mission: Achieve high accuracy in classifying the 10 classes of CIFAR-10 (dogs, cats, trucks, etc.).
 
+The Architecture: We're leveraging the robust ResNet-18 architecture. Its "residual blocks" are key to training very deep networks stably.
 
-🧠 The CNN Classifier (ResNet-18)
-This is the part that needs your magic!
+The Proof: The main deliverable here will be the classic Train vs. Test Accuracy Plot, showing how well our model generalizes to new data.
 
-The Mission: Teach our model to correctly label those small CIFAR-10 images (is it a dog? a truck? a bird?).
+# 🎨 Module 2: The GAN Generator (DCGAN)
+(This module is 100% coded, tested, and ready for integration.)
 
-The Engine: We're using ResNet-18, which is a powerhouse for classification. It uses special "skip connections" that help the model learn deeply without forgetting what it learned earlier.
+The Mission: Create a model that can "dream up" novel images that look like they belong in the CIFAR-10 dataset.
 
-Proof It Works: We need a classic Train vs. Test Accuracy graph to show how well it's performing as it learns.
+The Setup: We used a Deep Convolutional GAN (DCGAN) , implementing essential tricks like Label Smoothing to keep the training game balanced and prevent the model from crashing.
 
-🎨 The GAN Generator (DCGAN) - (Done & Ready!)
-This part of the code is complete and has been tested on a CPU.
+The Key to Modularity: All the hyperparameters (NUM_EPOCHS, BATCH_SIZE, etc.) are stored cleanly in the gan/config.json file.
 
-The Mission: To create entirely new, realistic-looking CIFAR-10 images from scratch!
+The Proof (Evaluation Complete!):
 
-The Architecture: We used a DCGAN, which is like a competitive game between two networks: one network generates images, and the other judges them.
+Generated Images: A grid of 64 new images showing the model's creative output.
 
-The Fixes: We've implemented Label Smoothing and a JSON Config to make the training as stable and professional as possible.
+Required Graph: We track the Discriminator's Accuracy. This plot shows that the Generator is continually improving and forcing the Discriminator's accuracy down towards the ideal 50% equilibrium .
 
-Proof It Works (The Plots are Ready):
+# 🚀 Getting Started & Running the Code
+1. Prerequisites (The Essentials)
+Python 3.8+
 
-Image Output: We generate a grid of 64 brand-new images.
+PyTorch (CUDA recommended): If you're using a GPU (like the RTX 3050), make sure you have the CUDA-enabled version of PyTorch installed for massive speed-ups!
 
-The Required Graph: We track the Discriminator's Accuracy over time. This shows how hard the Generator is working to fool the system—when the accuracy dips toward 50%, we know we've achieved near-perfect artificial realism!
+A requirements.txt file (to be added) will list all exact packages.
 
-🚀 How to Get Started
-1. The Right Environment (Crucial!)
-Use a GPU: This project needs the speed! If you have an RTX 3050 or better, please make sure PyTorch is installed with CUDA support. The code will automatically use the GPU if it detects it.
-
-Dependencies: Standard Python/PyTorch setup (see the requirements.txt file we'll generate later).
-
-2. Training the GAN (My Side)
-This module uses a separate config.json to keep all the settings outside the code.
-
-Check gan/config.json: Feel free to look, but try not to change the GAN settings unless we discuss it!
-
-Run the script: Always run from the root directory to ensure the imports work:
-
-Bash
-
-# Must be run from the FusionNet/ (project root) directory
+2. Running My Module (For Testing)
+To run the GAN module and see the results, you must execute the script from the root directory of the project (FusionNet/).
+# Run this from the main project folder (CNN-ResNet/)
 python -m gan.train_gan
-3. Training the CNN (Your Side)
-You'll need to create the training loop in cnn/train_cnn.py and potentially set up a cnn/config.json. Good luck!
+3. Running Your Module (The Next Step!)
+Once you've implemented the ResNet logic, you can run your part similarly:
+# Run this from the main project folder (CNN-ResNet/)
+python -m cnn.train_cnn
+
+
+Check Config: Take a look at gan/config.json to see the current training parameters (currently set to 50 epochs and a batch size of 128 for GPU efficiency).
+
+Execute:
+# Run this from the main project folder (CNN-ResNet/)
+python -m gan.train_gan
+3. Running Your Module (The Next Step!)
+Once you've implemented the ResNet logic, you can run your part similarly:
+# Run this from the main project folder (CNN-ResNet/)
+python -m cnn.train_cnn
