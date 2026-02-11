@@ -5,7 +5,6 @@ Hello! This repository hosts FusionNet, our exciting project where we are buildi
 The main goal is to create a super clean, modular framework that allows both parts to be developed and upgraded independently.
 
 # 🧠 Module 1: The CNN Classifier (ResNet-18)
-(This is your module! It's currently a clean slate, waiting for your implementation.)
 
 Your Mission: Achieve high accuracy in classifying the 10 classes of CIFAR-10 (dogs, cats, trucks, etc.).
 
