@@ -1,24 +1,24 @@
-# =========================
+# ====
 # Python
-# =========================
+# ====
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 
-# =========================
+# ====
 # Virtual Environments
-# =========================
+# ====
 venv/
 env/
 ENV/
 .venv/
 CNN_GAN/
 
-# =========================
+# ====
 # Python Packaging
-# =========================
+# ====
 build/
 dist/
 eggs/
@@ -27,21 +27,21 @@ eggs/
 *.egg
 pip-wheel-metadata/
 
-# =========================
+# ====
 # Logs
-# =========================
+# ====
 *.log
 logs/
 training.log
 
-# =========================
+# ====
 # Jupyter
-# =========================
+# ====
 .ipynb_checkpoints/
 
-# =========================
+# ====
 # Machine Learning Models
-# =========================
+# ====
 *.pth
 *.pt
 *.h5
@@ -50,18 +50,18 @@ training.log
 *.pkl
 *.joblib
 
-# =========================
+# ====
 # Datasets
-# =========================
+# ====
 data/
 datasets/
 *.csv
 *.zip
 *.tar.gz
 
-# =========================
+# ====
 # Training Outputs
-# =========================
+# ====
 runs/
 outputs/
 results/
@@ -69,24 +69,46 @@ checkpoints/
 tensorboard_logs/
 wandb/
 
-# =========================
+# ====
 # IDE / Editors
-# =========================
+# ====
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# =========================
+# ====
 # OS Files
-# =========================
+# ====
 .DS_Store
 Thumbs.db
 *.lnk
 
-# =========================
+# ====
 # Temporary files
-# =========================
+# ====
 *.tmp
 *.temp
 .cache/
+
+# Dependencies
+.venv
+venv
+*.egg-info/
+__pycache__/
+
+# Data and Checkpoints
+# Ignore all downloaded data
+data/
+cnn/data/
+gan/data/
+
+# Ignore all saved model checkpoints
+checkpoints/
+cnn/checkpoints/
+gan/checkpoints/
+
+# Ignore generated outputs
+*.png
+*.jpg
+*.log

@@ -1,0 +1,12 @@
+{
+  "training": {
+    "BATCH_SIZE": 128,
+    "NUM_EPOCHS": 50,
+    "LR": 0.0002,
+    "BETA1": 0.5
+  },
+  "device": {
+    "LATENT_DIM": 100,
+    "fixed_noise_samples": 64
+  }
+}
